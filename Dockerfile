@@ -13,6 +13,9 @@ RUN npm install --omit=dev
 FROM node:20-alpine
 WORKDIR /app
 
+# COPY the crucial package.json for the 'npm start' command to work
+COPY package.json ./
+
 # Copy only the necessary files from the builder stage
 # (This excludes the development tools and build artifacts)
 COPY --from=builder /app/node_modules ./node_modules
