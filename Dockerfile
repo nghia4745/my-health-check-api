@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 # This step is cached, speeding up subsequent builds
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm install --omit=dev
 
 # --- Stage 2: Production Stage ---
