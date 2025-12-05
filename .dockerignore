@@ -1,0 +1,9 @@
+# Ignore Node.js compiled dependencies
+node_modules
+
+# Ignore Git directory
+.git
+.gitignore
+
+# Ignore local environment variables
+.env
