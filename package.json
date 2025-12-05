@@ -1,0 +1,13 @@
+{
+  "name": "my-health-check-api",
+  "version": "1.0.0",
+  "description": "A barebones Express application that exposes a single endpoint, like /status or /health.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
