@@ -9,5 +9,16 @@
   },
   "dependencies": {
     "express": "^5.2.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nghia4745/my-health-check-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nghia4745/my-health-check-api/issues"
+  },
+  "homepage": "https://github.com/nghia4745/my-health-check-api#readme"
 }
