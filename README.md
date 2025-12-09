@@ -14,3 +14,7 @@ A barebones Express application that exposes a single endpoint, like /status or 
 # Testing
 1. http://localhost:8080
 2. http://localhost:8080/health
+
+# Clean Up
+1. docker rm <container name>
+2. docker rmi my-health-check-api:v1.0.0
