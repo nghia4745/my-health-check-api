@@ -58,7 +58,7 @@ jobs:
           
       # Step D: Build the Docker Image and push it to GHCR 
       - name: Build and push Docker image
-        uses: docker/build-and-push-action@v5
+        uses: docker/build-push-action@v5
         with:
           context: .       # Look for the Dockerfile in the current directory
           push: true       # Instruct the action to push the resulting image
