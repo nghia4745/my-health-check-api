@@ -22,8 +22,8 @@ spec:
     spec:
       containers:        # List of containers to run inside the Pod
         - name: my-health-check-api
-          # The image location. The ':IMAGE_TAG_PLACEHOLDER' is swapped by your CI/CD pipeline.
-          image: ghcr.io/nghia4745/my-health-check-api:IMAGE_TAG_PLACEHOLDER
+          # The image location. The ':latest' is swapped by your CI/CD pipeline.
+          image: ghcr.io/nghia4745/my-health-check-api:latest
           
           ports:
           - containerPort: 3000  # The port your Node.js app is listening on inside the container

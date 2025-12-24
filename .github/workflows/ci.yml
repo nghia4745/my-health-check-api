@@ -85,25 +85,14 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA_DESKTOP }} # KUBE_CONFIG_DATA or KUBE_CONFIG_DATA_DESKTOP
 
-      # Dynamic Image Tag Replacement
-      - name: Update Kubernetes Deployment Manifest
-        run: |
-          TAG=${{ needs.build-and-push.outputs.tag }}
-          sed -i "s|IMAGE_TAG_PLACEHOLDER|${TAG}|g" k8s/deployment.yml
-
       # Apply the Kubernetes Manifests
       - name: Apply Kubernetes Manifests
-        uses: azure/k8s-action@v4
+        uses: azure/k8s-deploy@v5
         with:
-          command: apply
+          action: deploy
           manifests: |
             k8s/deployment.yml
             k8s/service.yml
-
-      # Wait for Deployment Rollout
-      - name: Wait for Deployment to be Ready
-        uses: azure/k8s-action@v4
-        with:
-          command: rollout status
-          resource-type: deployment
-          resource-name: my-health-check-api-deployment
+          # Bonus: k8s-deploy can handle the tag replacement for you!
+          images: |
+            ghcr.io/nghia4745/my-health-check-api:${{ needs.build-and-push.outputs.tag }}
