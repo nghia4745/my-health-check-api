@@ -66,44 +66,44 @@ jobs:
             ghcr.io/${{ steps.vars.outputs.repository }}:latest
             ghcr.io/${{ steps.vars.outputs.repository }}:${{ steps.vars.outputs.tag }}
 
-# # ----------------------------------------------------------------------------
-# # JOB 2: Continuous Deployment (Deployment steps are commented out for CI focus)
-# # ----------------------------------------------------------------------------
-# # deploy:
-# #   runs-on: ubuntu-latest
-# #   # Dependency: This job will only run if the 'build-and-push' job succeeds
-# #   needs: build-and-push 
-# #   
-# #   steps:
-# #     - name: Checkout Repository
-# #       uses: actions/checkout@v4
-# #     
-# #     # Kubeconfig setup and secret retrieval
-# #     - name: Setup Kubeconfig
-# #       uses: azure/k8s-set-context@v4
-# #       with:
-# #         method: kubeconfig
-# #         kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
-# # 
-# #     # Dynamic Image Tag Replacement
-# #     - name: Update Kubernetes Deployment Manifest
-# #       run: |
-# #         TAG=${{ needs.build-and-push.outputs.tag }}
-# #         sed -i "s|IMAGE_TAG_PLACEHOLDER|${TAG}|g" k8s/deployment.yml
-# # 
-# #     # Apply the Kubernetes Manifests
-# #     - name: Apply Kubernetes Manifests
-# #       uses: azure/k8s-action@v4
-# #       with:
-# #         command: apply
-# #         manifests: |
-# #           k8s/deployment.yml
-# #           k8s/service.yml
-# # 
-# #     # Wait for Deployment Rollout
-# #     - name: Wait for Deployment to be Ready
-# #       uses: azure/k8s-action@v4
-# #       with:
-# #         command: rollout status
-# #         resource-type: deployment
-# #         resource-name: health-check-deployment
+  # ----------------------------------------------------------------------------
+  # JOB 2: Continuous Deployment (Deployment steps are commented out for CI focus)
+  # ----------------------------------------------------------------------------
+  deploy:
+    runs-on: ubuntu-latest
+    # Dependency: This job will only run if the 'build-and-push' job succeeds
+    needs: build-and-push 
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      # Kubeconfig setup and secret retrieval
+      - name: Setup Kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA_DESKTOP }} # KUBE_CONFIG_DATA or KUBE_CONFIG_DATA_DESKTOP
+
+      # Dynamic Image Tag Replacement
+      - name: Update Kubernetes Deployment Manifest
+        run: |
+          TAG=${{ needs.build-and-push.outputs.tag }}
+          sed -i "s|IMAGE_TAG_PLACEHOLDER|${TAG}|g" k8s/deployment.yml
+
+      # Apply the Kubernetes Manifests
+      - name: Apply Kubernetes Manifests
+        uses: azure/k8s-action@v4
+        with:
+          command: apply
+          manifests: |
+            k8s/deployment.yml
+            k8s/service.yml
+
+      # Wait for Deployment Rollout
+      - name: Wait for Deployment to be Ready
+        uses: azure/k8s-action@v4
+        with:
+          command: rollout status
+          resource-type: deployment
+          resource-name: my-health-check-api-deployment

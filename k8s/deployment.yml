@@ -1,0 +1,37 @@
+# 1. API Version and Type
+apiVersion: apps/v1      # Specifies which version of the Kubernetes API to use
+kind: Deployment         # Defines this resource as a Deployment (manages Pods)
+metadata:
+  name: my-health-check-api-deployment  # The unique name of your deployment in the cluster
+  labels:                               # Metadata tags used for organization
+    app: my-health-check-api
+spec:
+  # 2. Scalability
+  replicas: 2            # Tells K8s to always keep 2 copies of your app running
+  
+  # 3. The Selector (The "Bridge")
+  selector:              # This tells the Deployment which Pods it is responsible for
+    matchLabels:
+      app: my-health-check-api  # Must match the labels defined in the 'template' below
+      
+  # 4. Pod Template
+  template:              # This is the blueprint for the Pods the Deployment will create
+    metadata:
+      labels:            # Labels applied to each individual Pod
+        app: my-health-check-api
+    spec:
+      containers:        # List of containers to run inside the Pod
+        - name: my-health-check-api
+          # The image location. The ':IMAGE_TAG_PLACEHOLDER' is swapped by your CI/CD pipeline.
+          image: ghcr.io/nghia4745/my-health-check-api:IMAGE_TAG_PLACEHOLDER
+          
+          ports:
+          - containerPort: 3000  # The port your Node.js app is listening on inside the container
+          
+          # 5. Health Checks (Liveness Probe)
+          livenessProbe:         # Periodically checks if the container is still alive
+            httpGet:
+              path: /health      # The endpoint in your Node.js code to check
+              port: 3000
+            initialDelaySeconds: 5  # Wait 5 seconds after start before first check
+            periodSeconds: 10       # How often to perform the check thereafter
