@@ -1,0 +1,99 @@
+name: my-health-check-api pipeline
+
+# 1. Define when the workflow runs
+on:
+  push:
+    # Trigger the workflow only when code is pushed to these branches
+    branches:
+      - main
+      - dev
+
+# ==============================================================================
+# JOBS BLOCK: Defines the set of sequential tasks (CI then CD)
+# ==============================================================================
+jobs:
+  # ----------------------------------------------------------------------------
+  # JOB 1: Continuous Integration (Build and Push Docker Image) - FOCUS
+  # ----------------------------------------------------------------------------
+  build-and-push:
+    # Use a standard, clean Ubuntu virtual machine for the runner
+    runs-on: ubuntu-latest
+    
+    # OUTPUTS: Define variables that the downstream 'deploy' job will consume
+    # NOTE: While the 'deploy' job is commented out, this output is the successful 
+    # artifact handoff from CI to CD.
+    outputs:
+      # Pass the unique image tag generated in the 'Set up variables' step
+      tag: ${{ steps.vars.outputs.tag }}
+
+    # PERMISSIONS: Grant specific rights to the GitHub Token for this job's security
+    permissions:
+      contents: read     # Required to check out the code
+      packages: write    # Required to push the image to GitHub Container Registry (GHCR)
+    
+    steps:
+      # Step A: Checkout the code
+      - name: Checkout Repository
+        # Uses the official action to download the repository contents onto the runner VM
+        uses: actions/checkout@v4
+
+      # Step B: Set up image tag and repository path variables
+      - name: Set up variables
+        id: vars
+        run: |
+          # Generate a unique 7-character tag from the Git Commit SHA
+          echo "tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+          # Get the repository path (e.g., username/repo-name) for the image name
+          echo "repository=${{ github.repository }}" >> $GITHUB_OUTPUT
+      
+      # Step C: Log into the container registry (GHCR)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          # github.actor is the username of the user who triggered the workflow
+          username: ${{ github.actor }}
+          # GITHUB_TOKEN is the secure, auto-generated token with 'packages: write' permission
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      # Step D: Build the Docker Image and push it to GHCR 
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .       # Look for the Dockerfile in the current directory
+          push: true       # Instruct the action to push the resulting image
+          tags: |          # Define two tags: a mutable 'latest' and the immutable 'SHA' tag
+            ghcr.io/${{ steps.vars.outputs.repository }}:latest
+            ghcr.io/${{ steps.vars.outputs.repository }}:${{ steps.vars.outputs.tag }}
+
+  # ----------------------------------------------------------------------------
+  # JOB 2: Continuous Deployment (Deployment steps are commented out for CI focus)
+  # ----------------------------------------------------------------------------
+  deploy:
+    runs-on: ubuntu-latest
+    # Dependency: This job will only run if the 'build-and-push' job succeeds
+    needs: build-and-push 
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Kubeconfig setup and secret retrieval
+      - name: Setup Kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA_DESKTOP }} # KUBE_CONFIG_DATA or KUBE_CONFIG_DATA_DESKTOP
+
+      # Apply the Kubernetes Manifests
+      - name: Apply Kubernetes Manifests
+        uses: azure/k8s-deploy@v5
+        with:
+          action: deploy
+          namespace: default
+          manifests: |
+            k8s/deployment.yml
+            k8s/service.yml
+          # Bonus: k8s-deploy can handle the tag replacement for you!
+          images: |
+            ghcr.io/nghia4745/my-health-check-api:${{ needs.build-and-push.outputs.tag }}

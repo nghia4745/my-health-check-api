@@ -18,3 +18,54 @@ A barebones Express application that exposes a single endpoint, like /status or 
 # Clean Up
 1. docker rm <container name>
 2. docker rmi my-health-check-api:v1.0.0
+
+# Setup MicroK8s Cluster & Access
+1. Get the MicroK8s KubeconfigFirst, you need the configuration file that tells kubectl how to connect to your cluster. In your WSL terminal, run `microk8s config > cluster-config.yaml`
+2. Update the Server Address (The WSL IP) By default, the config file uses 127.0.0.1 (localhost). However, GitHub cannot see "localhost" on your machine. You must replace it with your WSL IP Address. Find your WSL IP `hostname -I | awk '{print $1}'` Edit cluster-config.yaml Open the file and find the line starting with server: https://127.0.0.1:16443. Change it to: server: https://<YOUR_WSL_IP>:16443. 
+[!IMPORTANT]You may need to ensure your Windows Firewall allows incoming traffic on port 16443.
+Open Firewall Advanced Security -> Create a New Inbound Rule 
+
+  Rule Type: Port
+  Protocol and Ports: TCP 16443
+  Actio: Allow the connection
+  Profile: Uncheck Public (for security). Keep Domain and Private checked.
+  Name: MicroK8s API Server
+
+  Even after opening the firewall, Windows doesn't automatically know that traffic hitting port 16443 should go to WSL. WSL has its own internal IP address. To bridge this gap, you need to run a Port Proxy command in PowerShell (as Administrator). This tells Windows: "Anything coming to my physical PC's IP on 16443 should be sent to the WSL IP on 16443.
+  Run the Proxy Command (PowerShell Admin) `netsh interface portproxy add v4tov4 listenport=16443 listenaddress=0.0.0.0 connectport=16443 connectaddress=<WSL_IP>`
+
+  How to Verify it's Working: To check if the port is actually open and listening on your Windows machine, run this in a standard Windows Command Prompt or PowerShell: `Test-NetConnection -ComputerName localhost -Port 16443`
+  If TcpTestSucceeded is True, you have successfully opened the path!
+
+3. Create KUBE_CONFIG_DATA GitHub Actions Secret: azure/k8s-set-context@v4 supports both raw format and Base64 format. Proceed with just pasting the raw format to the secret value. Copy all of the content inside the cluster-config.yaml. Save the Secret in your GitHub Repository. Click Settings > Secrets and variables > Actions. Click New repository secret. Name: KUBE_CONFIG_DATA (or any naming, as long as it is referenced in ci.yml)
+Secret: Paste the raw string format from cluster-config.yaml
+
+How the Connection Works: Once this is set up, the azure/k8s-set-context action in your workflow will decode that secret and use it to point the GitHub Runner toward your WSL environment.
+
+4. Use a Tannel to make the local MicroK8s cluster "Public"
+- Install ngrok on Windows.
+- Sign up for a ngrok account using GitHub: https://dashboard.ngrok.com/signup
+- Access Auth Token: https://dashboard.ngrok.com/get-started/your-authtoken
+- Add auth token to ngrok config: `ngrok config add-authtoken $YOUR_AUTHTOKEN`
+- Add payment method for identity verification: https://dashboard.ngrok.com/settings#id-verification
+- In Command Prompt, Run: `ngrok tcp 16443`
+- Ngrok will give you a public URL (e.g., tcp://0.tcp.ngrok.io:12345) - replace `tcp` with `https`
+- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address.
+- You would update the server: line in your GitHub Secret to match that URL. This should override the change made in step 3.
+
+5. Create GitHub Registry Secret in Cluster
+Go to GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic).
+Generate a new token with the read:packages scope.
+
+kubectl create secret docker-registry ghcr-login-secret \
+  --docker-server=ghcr.io \
+  --docker-username=nghia4745 \
+  --docker-password=<GitHub PAT - docker-ghcr-access> \
+  --docker-email=nghia4745@gmail.com
+
+Confirm that the secret was created successfully: kubectl get secrets
+
+6. Verification after Successful Deployment to MicroK8s Cluster
+- `kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'` (this should match the SHA of the package that was built and publish to the GitHub repo, instead of showing the :latest)
+- Test the Health Check Locally: `kubectl port-forward deployment/my-health-check-api-deployment 3000:3000`, open browser to http://127.0.0.1:3000/health
+- Check the Rollout History: `kubectl rollout history deployment/my-health-check-api-deployment`
