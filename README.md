@@ -64,3 +64,8 @@ kubectl create secret docker-registry ghcr-login-secret \
   --docker-email=nghia4745@gmail.com
 
 Confirm that the secret was created successfully: kubectl get secrets
+
+6. Verification after Successful Deployment to MicroK8s Cluster
+- `kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'` (this should match the SHA of the package that was built and publish to the GitHub repo, instead of showing the :latest)
+- Test the Health Check Locally: `kubectl port-forward deployment/my-health-check-api-deployment 3000:3000`, open browser to http://127.0.0.1:3000/health
+- Check the Rollout History: `kubectl rollout history deployment/my-health-check-api-deployment`
