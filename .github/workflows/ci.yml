@@ -84,6 +84,12 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA_DESKTOP }} # KUBE_CONFIG_DATA or KUBE_CONFIG_DATA_DESKTOP
+    
+      - name: Debug Kubeconfig Format
+        run: |
+          # This prints the first 50 characters of the file kubectl is failing on
+          # It helps us see if there's a stray quote or garbled text at the start
+          head -c 50 /home/runner/work/_temp/kubeconfig_* | od -c
 
       # Apply the Kubernetes Manifests
       - name: Apply Kubernetes Manifests
