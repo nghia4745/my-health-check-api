@@ -41,3 +41,13 @@ Open Firewall Advanced Security -> Create a New Inbound Rule
 Secret: Paste the raw string format from cluster-config.yaml
 
 How the Connection Works: Once this is set up, the azure/k8s-set-context action in your workflow will decode that secret and use it to point the GitHub Runner toward your WSL environment.
+
+4. Use a Tannel to make the local MicroK8s cluster "Public"
+- Install ngrok on Windows.
+- Sign up for a ngrok account using GitHub: https://dashboard.ngrok.com/signup
+- Access Auth Token: https://dashboard.ngrok.com/get-started/your-authtoken
+- Add auth token to ngrok config: `ngrok config add-authtoken $YOUR_AUTHTOKEN`
+- Add payment method for identity verification: https://dashboard.ngrok.com/settings#id-verification
+- In Command Prompt, Run: `ngrok tcp 16443`
+- Ngrok will give you a public URL (e.g., tcp://0.tcp.ngrok.io:12345) - replace `tcp` with `https`
+- You would update the server: line in your GitHub Secret to match that URL. This should override the change made in step 3.
