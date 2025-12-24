@@ -37,8 +37,7 @@ Open Firewall Advanced Security -> Create a New Inbound Rule
   How to Verify it's Working: To check if the port is actually open and listening on your Windows machine, run this in a standard Windows Command Prompt or PowerShell: `Test-NetConnection -ComputerName localhost -Port 16443`
   If TcpTestSucceeded is True, you have successfully opened the path!
 
-3. Base64 Encode the Config: GitHub Secrets handle binary or multi-line data best when it is Base64 encoded. This prevents formatting errors. Run this command to get the encoded `cat cluster-config.yaml | base64 -w 0`
-Copy the long string of random-looking characters that appears. Save the Secret in your GitHub Repository. Click Settings > Secrets and variables > Actions. Click New repository secret. Name: KUBE_CONFIG_DATA (or any naming, as long as it is referenced in ci.yml)
-Secret: Paste the Base64 string
+3. Create KUBE_CONFIG_DATA GitHub Actions Secret: azure/k8s-set-context@v4 supports both raw format and Base64 format. Proceed with just pasting the raw format to the secret value. Copy all of the content inside the cluster-config.yaml. Save the Secret in your GitHub Repository. Click Settings > Secrets and variables > Actions. Click New repository secret. Name: KUBE_CONFIG_DATA (or any naming, as long as it is referenced in ci.yml)
+Secret: Paste the raw string format from cluster-config.yaml
 
 How the Connection Works: Once this is set up, the azure/k8s-set-context action in your workflow will decode that secret and use it to point the GitHub Runner toward your WSL environment.
