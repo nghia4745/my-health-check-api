@@ -20,16 +20,20 @@ spec:
       labels:            # Labels applied to each individual Pod
         app: my-health-check-api
     spec:
+      # 5. Private Registry Authentication
+      # Since your image is stored in a private GitHub Container Registry (GHCR),
+      # Kubernetes needs credentials to "log in" and pull the image.
+      # This 'name' must match the Secret you created manually via 'kubectl create secret'.
+      imagePullSecrets:
+          - name: ghcr-login-secret
+
       containers:        # List of containers to run inside the Pod
         - name: my-health-check-api
           # The image location. The ':latest' is swapped by your CI/CD pipeline.
           image: ghcr.io/nghia4745/my-health-check-api:latest
-          imagePullSecrets:
-          - name: ghcr-login-secret
           ports:
           - containerPort: 3000  # The port your Node.js app is listening on inside the container
-          
-          # 5. Health Checks (Liveness Probe)
+          # 6. Health Checks (Liveness Probe)
           livenessProbe:         # Periodically checks if the container is still alive
             httpGet:
               path: /health      # The endpoint in your Node.js code to check
