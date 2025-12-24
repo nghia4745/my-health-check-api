@@ -78,6 +78,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       
+      - name: Kubeconfig Sanity Check
+        run: |
+          if [ -z "${{ secrets.KUBE_CONFIG_DATA_DESKTOP }}" ]; then
+            echo "Error: Secret is empty!"
+            exit 1
+          fi
+          # Check if the secret starts with 'apiVersion' (raw) or 'YXBp' (base64 for api)
+          echo "Secret length: ${#SECRET_VAL}"
+        env:
+          SECRET_VAL: ${{ secrets.KUBE_CONFIG_DATA_DESKTOP }}
+      
       # Kubeconfig setup and secret retrieval
       - name: Setup Kubeconfig
         uses: azure/k8s-set-context@v4
