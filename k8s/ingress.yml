@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1 # Standard API for Ingress since K8s 1.19+
+kind: Ingress # Defines this as a Layer 7 (HTTP/HTTPS) routing resource
+metadata:
+  name: my-health-check-api-ingress # The name used to manage this resource via kubectl
+  annotations:
+    # Tells the controller how to handle the URL. This 'rewrite' allows you to
+    # route traffic even if the app inside the container isn't expecting a specific sub-path.
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # This tells Kubernetes which Ingress Controller should handle this rule.
+  # In MicroK8s, the default class is usually 'public' or 'nginx'.
+  ingressClassName: public
+  tls:
+  - secretName: my-api-tls-secret # The TLS secret you created earlier
+  rules:
+  - http:
+      paths:
+      - path: / # The URL path to match (e.g., my-health-api.local/)
+        pathType: Prefix # Matches anything starting with the path defined above
+        backend:
+          service:
+            # This must exactly match the name of the Service we created earlier
+            name: my-health-check-api-external-service 
+            port:
+              number: 80 # The port the SERVICE is listening on (from your svc.yaml)

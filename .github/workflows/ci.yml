@@ -90,10 +90,11 @@ jobs:
         uses: azure/k8s-deploy@v5
         with:
           action: deploy
-          namespace: default
           manifests: |
             k8s/deployment.yml
             k8s/service.yml
+            k8s/external-service.yml
+            k8s/ingress.yml
           # Bonus: k8s-deploy can handle the tag replacement for you!
           images: |
             ghcr.io/nghia4745/my-health-check-api:${{ needs.build-and-push.outputs.tag }}

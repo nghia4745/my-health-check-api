@@ -50,10 +50,10 @@ How the Connection Works: Once this is set up, the azure/k8s-set-context action 
 - Add payment method for identity verification: https://dashboard.ngrok.com/settings#id-verification
 - In Command Prompt, Run: `ngrok tcp 16443`
 - Ngrok will give you a public URL (e.g., tcp://0.tcp.ngrok.io:12345) - replace `tcp` with `https`
-- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address.
+- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address. This is a temporary , ideally, we want to setup a certificate, starting with self-signed cert and then eventually migrate to use Cert-Manager. Refer to [text](k8s/cert-management.md) for more details.
 - You would update the server: line in your GitHub Secret to match that URL. This should override the change made in step 3.
 
-5. Create GitHub Registry Secret in Cluster
+5. Create GitHub Registry Secret in Cluster *** THIS WILL NEED TO BE UPDATE IF NGROK URL CHANGES (TYPICALLY JUST THE PORT), WHEN `ngrok tcp 16443` IS RUN ***
 Go to GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic).
 Generate a new token with the read:packages scope.
 
@@ -69,3 +69,9 @@ Confirm that the secret was created successfully: kubectl get secrets
 - `kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'` (this should match the SHA of the package that was built and publish to the GitHub repo, instead of showing the :latest)
 - Test the Health Check Locally: `kubectl port-forward deployment/my-health-check-api-deployment 3000:3000`, open browser to http://127.0.0.1:3000/health
 - Check the Rollout History: `kubectl rollout history deployment/my-health-check-api-deployment`
+
+7. Testing Connection from WSL and Windows's Browser
+- `kubectl get nodes -o wide` Get the Internal-IP
+- `kubectl get ingress my-health-check-api-ingress` Get the PORT
+- `curl <NODE_INTERNAL_IP>:<INGRESS_NODEPORT>` From the WSL/MicroK8s terminal
+- Testing from Windows web browser: http://<NODE_INTERNAL_IP>:<INGRESS_NODEPORT> - Run `ip a | grep inet | grep global | grep eth0` inside the WSL terminal to get the WSL Node's IP Address (the IP address next to inet in the output)

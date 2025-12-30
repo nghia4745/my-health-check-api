@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service            # Defines this resource as a Service (Networking)
 metadata:
   name: my-health-check-api-service # The name used to identify the service
+  namespace: ingress # Important: This must be in the ingress namespace
 spec:
   # 2. Service Type
   # NodePort makes the service accessible outside the cluster via your machine's IP

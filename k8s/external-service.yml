@@ -1,0 +1,12 @@
+apiVersion: v1 # Specifies the Kubernetes API version being used (v1 is standard for Services)
+kind: Service # Tells Kubernetes to create a 'Service' object rather than a Deployment or Pod
+metadata:
+  name: my-health-check-api-external-service # The unique name for this service within your namespace
+spec:
+  type: LoadBalancer # Requests an external IP from the cloud provider or local cluster (e.g., Docker Desktop)
+  selector:
+    app: my-health-check-api # The "glue": this tells the Service to send traffic to any Pods labeled 'app: my-health-check-api'
+  ports:
+    - protocol: TCP # The network protocol used (TCP is the default for web APIs)
+      port: 80 # The "Entry Port": what you type into your Windows browser (http://localhost:80)
+      targetPort: 3000 # The "Destination Port": the actual port your app is listening on inside the container
