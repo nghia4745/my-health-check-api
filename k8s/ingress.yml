@@ -11,11 +11,8 @@ spec:
   # In MicroK8s, the default class is usually 'public' or 'nginx'.
   ingressClassName: nginx
   tls:
-  - hosts:
-    - my-health-api.local # The same host defined in the rules below
     secretName: my-api-tls-secret # The TLS secret you created earlier
   rules:
-  - host: my-health-api.local # The "Virtual Host": Windows must send this header to trigger the rule
     http:
       paths:
       - path: / # The URL path to match (e.g., my-health-api.local/)
