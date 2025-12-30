@@ -69,3 +69,9 @@ Confirm that the secret was created successfully: kubectl get secrets
 - `kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'` (this should match the SHA of the package that was built and publish to the GitHub repo, instead of showing the :latest)
 - Test the Health Check Locally: `kubectl port-forward deployment/my-health-check-api-deployment 3000:3000`, open browser to http://127.0.0.1:3000/health
 - Check the Rollout History: `kubectl rollout history deployment/my-health-check-api-deployment`
+
+7. Testing Connection from WSL and Windows's Browser
+- `kubectl get nodes -o wide` Get the Internal-IP
+- `kubectl get ingress my-health-check-api-ingress` Get the PORT
+- `curl <NODE_INTERNAL_IP>:<INGRESS_NODEPORT>` From the WSL/MicroK8s terminal
+- Testing from Windows web browser: http://<NODE_INTERNAL_IP>:<INGRESS_NODEPORT> - Run `ip a | grep inet | grep global | grep eth0` inside the WSL terminal to get the WSL Node's IP Address (the IP address next to inet in the output)

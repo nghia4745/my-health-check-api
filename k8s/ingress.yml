@@ -9,7 +9,7 @@ metadata:
 spec:
   # This tells Kubernetes which Ingress Controller should handle this rule.
   # In MicroK8s, the default class is usually 'public' or 'nginx'.
-  ingressClassName: nginx
+  ingressClassName: public
   tls:
   - secretName: my-api-tls-secret # The TLS secret you created earlier
   rules:
