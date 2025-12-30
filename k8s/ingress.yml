@@ -11,9 +11,9 @@ spec:
   # In MicroK8s, the default class is usually 'public' or 'nginx'.
   ingressClassName: nginx
   tls:
-    secretName: my-api-tls-secret # The TLS secret you created earlier
+  - secretName: my-api-tls-secret # The TLS secret you created earlier
   rules:
-    http:
+  - http:
       paths:
       - path: / # The URL path to match (e.g., my-health-api.local/)
         pathType: Prefix # Matches anything starting with the path defined above
