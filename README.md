@@ -50,10 +50,10 @@ How the Connection Works: Once this is set up, the azure/k8s-set-context action 
 - Add payment method for identity verification: https://dashboard.ngrok.com/settings#id-verification
 - In Command Prompt, Run: `ngrok tcp 16443`
 - Ngrok will give you a public URL (e.g., tcp://0.tcp.ngrok.io:12345) - replace `tcp` with `https`
-- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address.
+- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address. This is a temporary , ideally, we want to setup a certificate, starting with self-signed cert and then eventually migrate to use Cert-Manager.
 - You would update the server: line in your GitHub Secret to match that URL. This should override the change made in step 3.
 
-5. Create GitHub Registry Secret in Cluster
+5. Create GitHub Registry Secret in Cluster *** THIS WILL NEED TO BE UPDATE IF NGROK URL CHANGES (TYPICALLY JUST THE PORT), WHEN `ngrok tcp 16443` IS RUN ***
 Go to GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic).
 Generate a new token with the read:packages scope.
 
