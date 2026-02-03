@@ -26,13 +26,36 @@ spec:
       # This 'name' must match the Secret you created manually via 'kubectl create secret'.
       imagePullSecrets:
           - name: ghcr-login-secret
-
       containers:        # List of containers to run inside the Pod
         - name: my-health-check-api
           # The image location. The ':latest' is swapped by your CI/CD pipeline.
           image: ghcr.io/nghia4745/my-health-check-api:latest
+          env:
+            # Environment Variables from ConfigMap
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: APP_ENV
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: LOG_LEVEL
+            - name: HEALTH_CHECK_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: HEALTH_CHECK_INTERVAL
           ports:
           - containerPort: 3000  # The port your Node.js app is listening on inside the container
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
           # 6. Health Checks (Liveness Probe)
           livenessProbe:         # Periodically checks if the container is still alive
             httpGet:
