@@ -42,7 +42,7 @@ Secret: Paste the raw string format from cluster-config.yaml
 
 How the Connection Works: Once this is set up, the azure/k8s-set-context action in your workflow will decode that secret and use it to point the GitHub Runner toward your WSL environment.
 
-4. Use a Tannel to make the local MicroK8s cluster "Public"
+4. Use a Tunnel to make the local MicroK8s cluster "Public"
 - Install ngrok on Windows.
 - Sign up for a ngrok account using GitHub: https://dashboard.ngrok.com/signup
 - Access Auth Token: https://dashboard.ngrok.com/get-started/your-authtoken
@@ -52,8 +52,8 @@ How the Connection Works: Once this is set up, the azure/k8s-set-context action 
 - Ngrok will give you a public URL (e.g., tcp://0.tcp.ngrok.io:12345) - replace `tcp` with `https`
 - In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address. This is a temporary , ideally, we want to setup a certificate, starting with self-signed cert and then eventually migrate to use Cert-Manager. Refer to [text](k8s/cert-management.md) for more details.
 - You would update the server: line in your GitHub Secret to match that URL. This should override the change made in step 3.
-
-5. Create GitHub Registry Secret in Cluster *** THIS WILL NEED TO BE UPDATE IF NGROK URL CHANGES (TYPICALLY JUST THE PORT), WHEN `ngrok tcp 16443` IS RUN ***
+*** THIS WILL NEED TO BE UPDATE IF NGROK URL CHANGES (TYPICALLY JUST THE PORT), WHEN `ngrok tcp 16443` IS RUN ***
+5. Create GitHub Registry Secret in Cluster
 Go to GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic).
 Generate a new token with the read:packages scope.
 
