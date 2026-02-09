@@ -17,7 +17,7 @@ jobs:
   # ----------------------------------------------------------------------------
   build-and-push:
     # Use a standard, clean Ubuntu virtual machine for the runner
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     
     # OUTPUTS: Define variables that the downstream 'deploy' job will consume
     # NOTE: While the 'deploy' job is commented out, this output is the successful 
@@ -70,7 +70,7 @@ jobs:
   # JOB 2: Continuous Deployment (Deployment steps are commented out for CI focus)
   # ----------------------------------------------------------------------------
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     # Dependency: This job will only run if the 'build-and-push' job succeeds
     needs: build-and-push 
     
