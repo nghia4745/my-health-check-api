@@ -75,3 +75,5 @@ Confirm that the secret was created successfully: kubectl get secrets
 - `kubectl get ingress my-health-check-api-ingress` Get the PORT
 - `curl <NODE_INTERNAL_IP>:<INGRESS_NODEPORT>` From the WSL/MicroK8s terminal
 - Testing from Windows web browser: http://<NODE_INTERNAL_IP>:<INGRESS_NODEPORT> - Run `ip a | grep inet | grep global | grep eth0` inside the WSL terminal to get the WSL Node's IP Address (the IP address next to inet in the output)
+
+#Test
