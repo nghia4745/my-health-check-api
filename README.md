@@ -73,14 +73,14 @@ The Server URL: Inside that config, the server: address should now be your Inter
 - Select 'Read repository contents and packages permissions' in Workflow permissions.
 
 # Setup MicroK8s Cluster & Access (alternative to Self-Hosted, using GitHub's runner instead)
-1. Get the MicroK8s KubeconfigFirst, you need the configuration file that tells kubectl how to connect to your cluster. In your WSL terminal, run `microk8s config > cluster-config.yaml`
+1. Get the MicroK8s Kubeconfig. First, you need the configuration file that tells kubectl how to connect to your cluster. In your WSL terminal, run `microk8s config > cluster-config.yaml`
 2. Update the Server Address (The WSL IP) By default, the config file uses 127.0.0.1 (localhost). However, GitHub cannot see "localhost" on your machine. You must replace it with your WSL IP Address. Find your WSL IP `hostname -I | awk '{print $1}'` Edit cluster-config.yaml Open the file and find the line starting with server: https://127.0.0.1:16443. Change it to: server: https://<YOUR_WSL_IP>:16443. 
-[!IMPORTANT]You may need to ensure your Windows Firewall allows incoming traffic on port 16443.
+[!IMPORTANT] You may need to ensure your Windows Firewall allows incoming traffic on port 16443.
 Open Firewall Advanced Security -> Create a New Inbound Rule 
 
   Rule Type: Port
   Protocol and Ports: TCP 16443
-  Actio: Allow the connection
+  Action: Allow the connection
   Profile: Uncheck Public (for security). Keep Domain and Private checked.
   Name: MicroK8s API Server
 
@@ -103,9 +103,9 @@ How the Connection Works: Once this is set up, the azure/k8s-set-context action 
 - Add payment method for identity verification: https://dashboard.ngrok.com/settings#id-verification
 - In Command Prompt, Run: `ngrok tcp 16443`
 - Ngrok will give you a public URL (e.g., tcp://0.tcp.ngrok.io:12345) - replace `tcp` with `https`
-- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address. This is a temporary , ideally, we want to setup a certificate, starting with self-signed cert and then eventually migrate to use Cert-Manager. Refer to [text](k8s/cert-management.md) for more details.
+- In addition, we will want to remove the certificate-authority-data line entirely and add `insecure-skip-tls-verify: true` under the cluster section of the cluster-config.yaml. This will allow your local MicroK8s cluster to trust this 'ngrok' address. This is a temporary. Ideally, we want to setup a certificate, starting with self-signed cert and then eventually migrate to use cert-manager. Refer to [text](k8s/cert-management.md) for more details.
 - You would update the server: line in your GitHub Secret to match that URL. This should override the change made in step 3.
-*** THIS WILL NEED TO BE UPDATE IF NGROK URL CHANGES (TYPICALLY JUST THE PORT), WHEN `ngrok tcp 16443` IS RUN ***
+*** THIS WILL NEED TO BE UPDATED IF NGROK URL CHANGES (TYPICALLY JUST THE PORT), WHEN `ngrok tcp 16443` IS RUN ***
 5. Create GitHub Registry Secret in Cluster
 Go to GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic).
 Generate a new token with the read:packages scope.
@@ -129,4 +129,4 @@ Confirm that the secret was created successfully: kubectl get secrets
 - `curl <NODE_INTERNAL_IP>:<INGRESS_NODEPORT>` From the WSL/MicroK8s terminal
 - Testing from Windows web browser: http://<NODE_INTERNAL_IP>:<INGRESS_NODEPORT> - Run `ip a | grep inet | grep global | grep eth0` inside the WSL terminal to get the WSL Node's IP Address (the IP address next to inet in the output)
 
-Note: This will allow the microK8s to be reached from the internet through the ngrok tunnel that we have setup. This servers as a template but not a permanent solution because the ngrok url is not static in the free tier. If we want to be able to have it up consistently, then we would need to look into getting a static URL, and have an actual server running for high availability.
+Note: This will allow the microK8s to be reached from the internet through the ngrok tunnel that we have setup. This serves as a template but not a permanent solution because the ngrok url is not static in the free tier. If we want to be able to have it up consistently, then we would need to look into getting a static URL, and have an actual server running for high availability.
