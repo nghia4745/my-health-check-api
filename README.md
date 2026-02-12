@@ -19,7 +19,57 @@ A barebones Express application that exposes a single endpoint, like /status or 
 1. docker rm <container name>
 2. docker rmi my-health-check-api:v1.0.0
 
-# Setup MicroK8s Cluster & Access
+# Self-Hosted Runner Setup
+1. Create the Runner in GitHub
+  - Navigate to your GitHub Repository.
+  - Go to Settings > Actions > Runners.
+  - Click the New self-hosted runner button.
+    - Select Linux (assuming your MicroK8s is on Linux or WSL2) and x64.
+2. Install the Runner Locally
+Open your MicroK8s terminal. We’re going to create a folder for the runner and follow the commands GitHub gave you.
+## Create a folder
+`mkdir actions-runner && cd actions-runner`
+## Download the latest runner package (Replace with the URL from your GitHub screen)
+`curl -o actions-runner-linux-x64-2.311.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-x64-2.311.0.tar.gz`
+## Extract the installer
+`tar xzf ./actions-runner-linux-x64-2.311.0.tar.gz`
+## Install kubectl on runner
+`sudo snap install kubectl --classic`
+3. Configure and Connect
+  - Now, run the configuration script provided by GitHub (it includes a unique token):
+`./config.sh --url https://github.com/YOUR_USER/YOUR_REPO --token YOUR_TOKEN`
+Runner Group: Press Enter (default).
+Name of Runner: <RUNNER_NAME>
+Labels: `self-hosted, Linux, X64, wsl-ubuntu`
+Work Folder: Press Enter (_work).
+4. Run it as a Service
+## Install the service
+`sudo ./svc.sh install`
+## Start the service
+`sudo ./svc.sh start`
+## Check the status
+`sudo ./svc.sh status`
+5. Update your GitHub Action Workflow - You need to tell your .yml file to stop using GitHub's servers and use your machine instead.
+Change this:
+
+YAML
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+To this:
+
+YAML
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+Note: we use the label as the value for runs-on field.
+6. Get your internal config: Run `microk8s config`.
+Update GitHub Secrets: Take that output and put it into your KUBE_CONFIG_DATA_DESKTOP secret in GitHub.
+The Server URL: Inside that config, the server: address should now be your Internal IP (e.g., https://192.168.1.10:16443) or even https://127.0.0.1:16443 if the runner is on the same OS.
+
+
+# Setup MicroK8s Cluster & Access (alternative to Self-Hosted, using GitHub's runner instead)
 1. Get the MicroK8s KubeconfigFirst, you need the configuration file that tells kubectl how to connect to your cluster. In your WSL terminal, run `microk8s config > cluster-config.yaml`
 2. Update the Server Address (The WSL IP) By default, the config file uses 127.0.0.1 (localhost). However, GitHub cannot see "localhost" on your machine. You must replace it with your WSL IP Address. Find your WSL IP `hostname -I | awk '{print $1}'` Edit cluster-config.yaml Open the file and find the line starting with server: https://127.0.0.1:16443. Change it to: server: https://<YOUR_WSL_IP>:16443. 
 [!IMPORTANT]You may need to ensure your Windows Firewall allows incoming traffic on port 16443.
@@ -76,4 +126,4 @@ Confirm that the secret was created successfully: kubectl get secrets
 - `curl <NODE_INTERNAL_IP>:<INGRESS_NODEPORT>` From the WSL/MicroK8s terminal
 - Testing from Windows web browser: http://<NODE_INTERNAL_IP>:<INGRESS_NODEPORT> - Run `ip a | grep inet | grep global | grep eth0` inside the WSL terminal to get the WSL Node's IP Address (the IP address next to inet in the output)
 
-#Test
+Note: This will allow the microK8s to be reached from the internet through the ngrok tunnel that we have setup. This servers as a template but not a permanent solution because the ngrok url is not static in the free tier. If we want to be able to have it up consistently, then we would need to look into getting a static URL, and have an actual server running for high availability.
