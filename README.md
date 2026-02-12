@@ -67,7 +67,10 @@ Note: we use the label as the value for runs-on field.
 6. Get your internal config: Run `microk8s config`.
 Update GitHub Secrets: Take that output and put it into your KUBE_CONFIG_DATA_DESKTOP secret in GitHub.
 The Server URL: Inside that config, the server: address should now be your Internal IP (e.g., https://192.168.1.10:16443) or even https://127.0.0.1:16443 if the runner is on the same OS.
-
+7. If the GitHub repository is public, we need to add some restrictions to ensure that other people are not able to kick off builds on our self-runner without our permission.
+- https://github.com/nghia4745/my-health-check-api/settings/actions
+- Select 'Require approval for all external contributors' in Approval for running fork pull request workflows from contributors
+- Select 'Read repository contents and packages permissions' in Workflow permissions.
 
 # Setup MicroK8s Cluster & Access (alternative to Self-Hosted, using GitHub's runner instead)
 1. Get the MicroK8s KubeconfigFirst, you need the configuration file that tells kubectl how to connect to your cluster. In your WSL terminal, run `microk8s config > cluster-config.yaml`
