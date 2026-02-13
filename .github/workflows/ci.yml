@@ -71,6 +71,9 @@ jobs:
   # ----------------------------------------------------------------------------
   deploy:
     runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: read
     # Dependency: This job will only run if the 'build-and-push' job succeeds
     needs: build-and-push 
     
