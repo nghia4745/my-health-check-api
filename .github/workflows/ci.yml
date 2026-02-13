@@ -99,4 +99,5 @@ jobs:
           # Bonus: k8s-deploy can handle the tag replacement for you!
           images: |
             ghcr.io/nghia4745/my-health-check-api:${{ needs.build-and-push.outputs.tag }}
-          force: true  # This specifically bypasses the image inspection that triggers the warning
+          imagepullsecrets: |
+            ghcr-login-secret
