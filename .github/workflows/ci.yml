@@ -104,7 +104,7 @@ jobs:
         uses: azure/k8s-deploy@v5
         with:
           action: deploy
-          namespace: ingress # Ensure this matches the namespace defined in your Kubernetes manifests
+          namespace: default
           manifests: |
             k8s/deployment.yml
             k8s/service.yml
