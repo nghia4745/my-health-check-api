@@ -3,7 +3,6 @@ apiVersion: v1
 kind: Service            # Defines this resource as a Service (Networking)
 metadata:
   name: my-health-check-api-service # The name used to identify the service
-  namespace: ingress # Important: This must be in the ingress namespace
 spec:
   # 2. Service Type
   # NodePort makes the service accessible outside the cluster via your machine's IP
@@ -19,4 +18,3 @@ spec:
     - protocol: TCP
       port: 80           # The port other services inside the cluster use to talk to this one
       targetPort: 3000   # The actual port your Node.js app is listening on inside the container
-      nodePort: 30080    # The port you will use in your Windows browser (http://localhost:30080)
