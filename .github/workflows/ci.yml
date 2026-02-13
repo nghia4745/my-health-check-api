@@ -104,6 +104,7 @@ jobs:
         uses: azure/k8s-deploy@v5
         with:
           action: deploy
+          namespace: default
           manifests: |
             k8s/deployment.yml
             k8s/service.yml
