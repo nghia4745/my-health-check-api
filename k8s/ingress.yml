@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1 # Standard API for Ingress since K8s 1.19+
 kind: Ingress # Defines this as a Layer 7 (HTTP/HTTPS) routing resource
 metadata:
   name: my-health-check-api-ingress # The name used to manage this resource via kubectl
-  namespace: default # The namespace where this Ingress will be created (must match your other resources)
   annotations:
     # Tells the controller how to handle the URL. This 'rewrite' allows you to
     # route traffic even if the app inside the container isn't expecting a specific sub-path.
