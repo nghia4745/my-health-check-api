@@ -85,6 +85,8 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA_DESKTOP }} # KUBE_CONFIG_DATA or KUBE_CONFIG_DATA_DESKTOP
 
+      - name: Verify Image Access
+        run: docker pull ghcr.io/${{ github.repository_owner }}/my-health-check-api:${{ github.sha }}
       # Apply the Kubernetes Manifests
       - name: Apply Kubernetes Manifests
         uses: azure/k8s-deploy@v5
@@ -99,5 +101,3 @@ jobs:
           # Bonus: k8s-deploy can handle the tag replacement for you!
           images: |
             ghcr.io/nghia4745/my-health-check-api:${{ needs.build-and-push.outputs.tag }}
-          imagepullsecrets: |
-            ghcr-login-secret
