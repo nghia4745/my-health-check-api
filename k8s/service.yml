@@ -18,4 +18,3 @@ spec:
     - protocol: TCP
       port: 80           # The port other services inside the cluster use to talk to this one
       targetPort: 3000   # The actual port your Node.js app is listening on inside the container
-      nodePort: 30080    # The port you will use in your Windows browser (http://localhost:30080)
